@@ -6,7 +6,7 @@ var logger = require('morgan');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const passport = require('passport');
-const authenticate = require('./authenticate');
+const config = require('./config');
 
 
 var indexRouter = require('./routes/index');
@@ -17,7 +17,7 @@ const partnerRouter = require('./routes/partnerRouter');
 
 const mongoose = require('mongoose');
 
-const url = 'mongodb://localhost:27017/nucampsite';
+const url = config.mongoUrl;
 const connect = mongoose.connect(url, {
     useCreateIndex: true,
     useFindAndModify: false,
@@ -40,13 +40,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 //app.use(cookieParser('12345-67890-09876-54321'));
 
-app.use(session({
-  name: 'session-id',
-  secret: '12345-67890-09876-54321',
-  saveUninitialized: false,
-  resave: false,
-  store: new FileStore()
-}));
 
 function auth(req, res, next) {
   console.log(req.session);
@@ -139,8 +132,6 @@ function auth(req, res, next) {
   }
 }
 
-app.use(auth);
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/campsites', campsiteRouter);
@@ -149,19 +140,6 @@ app.use('/partners', partnerRouter);
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use(passport.initialize());
-app.use(passport.session());
-
-function auth(req, res, next) {
-    console.log(req.user);
-
-    if (!req.user) {
-        const err = new Error('You are not authenticated!');                    
-        err.status = 401;
-        return next(err);
-    } else {
-        return next();
-    }
-}
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
