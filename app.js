@@ -13,6 +13,8 @@ const partnerRouter = require('./routes/partnerRouter');
 
 const mongoose = require('mongoose');
 
+const uploadRouter = require('./routes/uploadRouter');
+
 const url = config.mongoUrl;
 const connect = mongoose.connect(url, {
     useCreateIndex: true,
@@ -50,6 +52,8 @@ app.use(passport.initialize());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+
+app.use('/imageUpload', uploadRouter);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
